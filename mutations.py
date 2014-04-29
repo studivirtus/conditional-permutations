@@ -22,16 +22,19 @@ mutations = [
     [0,3,4,1,2],
     [0,2,3,1,4],
     [0,1,3,4,2],
-    [0,3,1,2,4,]]
+    [0,3,1,2,4],
+    [0,1,4,2,3],
+    [0,2,1,4,3],
+    [0,4,1,3,2],
+    [0,2,4,3,1],
+    [0,4,2,1,3]]
 
 
 from itertools import cycle
 
-def mutatate (source, muta, rev):
+def mutatate (source, muta):
     mutation = [0,0,0,0,0]
     mutaCycle = cycle(muta)
-    if rev:
-        muta.reverse()
     nextel = mutaCycle.__next__()
     i = 0
     while i < 5:
@@ -72,11 +75,7 @@ class node:
         """get children of a node"""
         chillens = []
         for i in mutations:
-            m = mutatate(self.nValue,i,False)
-            chillens.append(node(m,pNode,self.nCost,(pNode.nDepth + 1),pNode.maxDepth))
-        for i in mutations:
-            m = mutatate(self.nValue,i,True)
-            chillens.append(node(m,pNode,self.nCost,(pNode.nDepth + 1),pNode.maxDepth))
+            chillens.append(node(i,pNode,self.nCost,(pNode.nDepth + 1),pNode.maxDepth))
         return[chillens]
 
 
@@ -108,13 +107,14 @@ class depthFirstSearch():
             self.printlist(self.nodesVisited)#DEBUG"""
             curNode = self.frontier.pop(0)
             #print("current node: %i" %curNode.nValue) #DEBUG
-            if self.goalReached(curNode.nValue):
-                found = True
-                solutionNode = curNode
-                self.addNodesVisited(curNode)
-                break
+            if self.atMaxDepth(curNode):
+                if self.goalReached(curNode):
+                    found = True
+                    solutionNode = curNode
+                    self.addNodesVisited(curNode)
+                    break
             self.addNodesVisited(curNode)
-            if (curNode.nDepth < self.depthLimit or  self.depthLimit == 0):
+            if (not self.atMaxDepth(curNode) or  self.depthLimit == 0):
                 if curNode.hasChildren():
                     children = curNode.getChildren(curNode)
                     for x in range(len(children)):
@@ -129,10 +129,11 @@ class depthFirstSearch():
         elif not found and self.frontierIsEmpty():
             print("FAILURE, Depth first search did not find a solution")
             print("here are the nodes visited:")
+            print(len(self.nodesVisited))
             self.printlist(self.nodesVisited)
 
     def atMaxDepth(self,curNode):
-        if curNode.nDepth == self.depthLimit:
+        if curNode.nDepth >= self.depthLimit:
             return True
         return False
 
@@ -151,8 +152,10 @@ class depthFirstSearch():
         self.frontier.extend(curNode)
 
 
-    def goalReached(self,nValue):
+    def goalReached(self,cuNode):
         pass
+        mutes = getMutes(cuNode)
+        mutationTest(enter, mutes)
        # """YAY GOAL IS REACHED WE"RE DONE"""
        # if nValue == self.goal:
        #     return True
@@ -167,6 +170,42 @@ class depthFirstSearch():
 def main():
     pass
 
+def getMutes(curNode):
+    cnode = curNode
+    path = []
+    path.append(cnode)
+    while cnode.pNode != 0:
+        cnode = cnode.pNode
+        path.append(cnode)
+    print(path[0].nValue, path[1].nValue, path[2].nValue, path[3].nValue)
+    return path
+
+def mutationTest(enter, mutes):
+    modEnt = enter
+    x = [1,0]
+    y = [1,0]
+    result = []
+    count = 0
+    for ix in x:
+        for iy in y:
+            modEnt = enter
+            if ix == 1:
+                modEnt = mutatate(modEnt,mutes[3].nValue)
+            if iy == 1:
+                modEnt = mutatate(modEnt,mutes[2].nValue)
+            if ix == 1:
+                modEnt = mutatate(modEnt,mutes[1].nValue)
+            if iy == 1:
+                modEnt = mutatate(modEnt,mutes[0].nValue)
+            result.append(modEnt)
+    if result[0] == enter:
+        if result[1] != enter:
+            if result[2] != enter:
+                if result[3] != enter:
+                    return True
+    else:
+        return False
+
 
 if __name__ == '__main__':
     main()
@@ -174,7 +213,7 @@ if __name__ == '__main__':
     maxNodeDepth = 5 #Nodes beyond this level don't have children
     depthLimit = 4 #Set maximun level for DFS to search 0 = INFINITY
 
-    startingNode = node(enter,0,0,0,maxNodeDepth)
+    startingNode = node(0,0,0,0,maxNodeDepth)
 
     DFS = depthFirstSearch(startingNode,goalNode,depthLimit)
     DFS.explore()
