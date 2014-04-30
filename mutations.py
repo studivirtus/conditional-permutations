@@ -10,13 +10,16 @@
 #-------------------------------------------------------------------------------
 def main():
     pass
-
+import random
 if __name__ == '__main__':
     main()
 
 truthTable = (1, 0, 0, 0)
 enter = ['a','b','c','d','e']
 modEnter = ()
+global finalResult
+finalResult = []
+
 mutations = [
     [0,3,2,4,1],
     [0,3,4,1,2],
@@ -76,6 +79,7 @@ class node:
         chillens = []
         for i in mutations:
             chillens.append(node(i,pNode,self.nCost,(pNode.nDepth + 1),pNode.maxDepth))
+            random.shuffle(chillens)
         return[chillens]
 
 
@@ -123,7 +127,8 @@ class depthFirstSearch():
                         self.addToFrontier(child)
 
         if(found):
-            print("Depth first search FOUND A SOLUTION %i" % solutionNode.nValue)
+            #print("Depth first search FOUND A SOLUTION %i" % solutionNode.nValue)
+            print(finalResult)
             print("here are the nodes visited:")
             self.printlist(self.nodesVisited)
         elif not found and self.frontierIsEmpty():
@@ -155,7 +160,7 @@ class depthFirstSearch():
     def goalReached(self,cuNode):
         pass
         mutes = getMutes(cuNode)
-        mutationTest(enter, mutes)
+        return mutationTest(enter, mutes)
        # """YAY GOAL IS REACHED WE"RE DONE"""
        # if nValue == self.goal:
        #     return True
@@ -167,9 +172,6 @@ class depthFirstSearch():
             print(item.nValue,end=', ')
         print('')
 
-def main():
-    pass
-
 def getMutes(curNode):
     cnode = curNode
     path = []
@@ -177,7 +179,7 @@ def getMutes(curNode):
     while cnode.pNode != 0:
         cnode = cnode.pNode
         path.append(cnode)
-    print(path[0].nValue, path[1].nValue, path[2].nValue, path[3].nValue)
+    #print(path[0].nValue, path[1].nValue, path[2].nValue, path[3].nValue)
     return path
 
 def mutationTest(enter, mutes):
@@ -198,16 +200,20 @@ def mutationTest(enter, mutes):
             if iy == 1:
                 modEnt = mutatate(modEnt,mutes[0].nValue)
             result.append(modEnt)
-    if result[0] == enter:
+    if result[0] != enter:
         if result[1] != enter:
             if result[2] != enter:
-                if result[3] != enter:
+                if result[3] == enter:
+                    global finalResult
+                    finalResult = result
                     return True
+
     else:
         return False
 
 
 if __name__ == '__main__':
+
     main()
     goalNode = 15
     maxNodeDepth = 5 #Nodes beyond this level don't have children
